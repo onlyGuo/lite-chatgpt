@@ -10,6 +10,10 @@ const props = defineProps({
       time: '',
       attachments: []
     },
+  },
+  gptAvatar: {
+    type: String,
+    default: ''
   }
 })
 </script>
@@ -18,18 +22,18 @@ const props = defineProps({
   <div class="message">
     <div v-if="message.role === 'assistant'" class="assistant-message">
       <div class="avatar">
-        <img src="../assets/vue.svg" alt="avatar" />
+        <img :src="gptAvatar" alt="avatar" />
       </div>
       <div class="content">
-        <MdPreview :model-value="message.content" class="markdown-body" />
+        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" />
       </div>
     </div>
     <div v-else class="user-message">
       <div class="content">
-        <MdPreview :model-value="message.content" class="markdown-body" />
+        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" />
       </div>
       <div class="avatar">
-        <img src="../assets/vue.svg" alt="avatar" />
+        <img src="../assets/avatar.svg" alt="avatar" />
       </div>
     </div>
   </div>
@@ -38,7 +42,7 @@ const props = defineProps({
 <style scoped lang="less">
 .message{
   .content{
-    box-shadow: 2px 2px 10px -3px rgba(0,0,0,0.4);
+    box-shadow: 1px 1px 7px -2px rgba(0,0,0,0.2);
 
     .markdown-body{
       background-color: transparent;
@@ -64,12 +68,68 @@ const props = defineProps({
       }
     }
     .content{
-      background-color: white;
+      background-color: #fcfcfc;
       padding: 10px;
       border-radius: 5px;
       margin-left: 10px;
       max-width: 70%;
       word-break: break-all;
+
+      /* markdown */
+      .markdown-body{
+        /deep/.gpt-fun-call{
+          background-color: rgba(0,0,0,.05);
+          padding: 5px 7px;
+          border-radius: 5px;
+          margin: 5px 0;
+          width: max-content;
+          cursor: pointer;
+          pointer-events: none;
+          .fun-icon{
+            margin-right: 5px;
+            height: 20px;
+            width: 20px;
+            padding: 0;
+            img{
+              width: 100%;
+              height: 100%;
+              margin: 0;
+              padding: 0;
+              border: none;
+            }
+          }
+          .gpt-fun-call-header{
+            font-size: 14px;
+            font-weight: bold;
+            color: #35b378;
+            display: flex;
+          }
+          .gpt-fun-call-status{
+            margin-top: 5px;
+            display: flex;
+            font-size: 12px;
+            color: #7a7a7a;
+            .fun-icon{
+              margin-right: 5px;
+              margin-top: 2px;
+              height: 15px;
+              width: 15px;
+              padding: 0;
+              &.running{
+                animation: rotate 2s linear infinite;
+              }
+            }
+            @keyframes rotate {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          }
+        }
+      }
     }
   }
 

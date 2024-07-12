@@ -1,1 +1,35 @@
-spring.application.name=lite-chatgpt
+spring:
+  application:
+    name: lite-chatgpt
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${ENV.DATABASE.USER:0}
+    password: ${ENV.DATABASE.PASSWORD:0}
+    url: jdbc:mysql://${ENV.DATABASE.URL:172.17.0.1:3306}/${ENV.DATABASE.NAME:lite_chatgpt}?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+  mail:
+    host: smtp.qq.com
+    username: 719348277@qq.com
+    password: jvlxkumeoklxbdde
+  data:
+    redis:
+      host: ${ENV.REDIS.HOST:172.17.0.1}
+      port: ${ENV.REDIS.PORT:6379}
+      password: ${ENV.REDIS.PASSWORD:0}
+alipay:
+  service: https://openapi.alipay.com/gateway.do
+  aes: <aes>
+  app-public-key: <app-public-key>
+  alipay-public-pay: <alipay-public-pay>
+  app-private-key: <app-private-key>
+  appid: <appid>
+oss:
+  endpoint: ${ENV.OSS.ENDPOINT:https://oss-cn-beijing.aliyuncs.com}
+  access-key-id: ${ENV.OSS.ACCESS_KEY_ID:000}
+  access-key-secret: ${ENV.OSS.ACCESS_KEY_SECRET:000}
+  bucket: ${ENV.OSS.ACCESS_BUCKET:g-chat}
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+
+logging:
+  file:
+    name: logs/lite-chatgpt.log

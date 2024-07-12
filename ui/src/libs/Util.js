@@ -29,6 +29,24 @@ const Util = {
         } else {
             return `${Math.floor(diffYears)}年前`
         }
+    },
+
+    getLocalStorage: (key, defaultValue) => {
+        const str = localStorage.getItem(key);
+        if(!str){
+            localStorage.setItem(key, JSON.stringify(defaultValue));
+            return defaultValue;
+        }else{
+            try {
+                return JSON.parse(str);
+            }catch (e) {
+                localStorage.setItem(key, JSON.stringify(defaultValue));
+                return defaultValue;
+            }
+        }
+    },
+    setLocalStorage: (key, value) => {
+        localStorage.setItem(key, JSON.stringify(value));
     }
 }
 
