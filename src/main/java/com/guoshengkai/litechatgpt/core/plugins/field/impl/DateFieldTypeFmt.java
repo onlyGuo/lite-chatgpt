@@ -1,10 +1,10 @@
 package com.guoshengkai.litechatgpt.core.plugins.field.impl;
 
-import com.guoshengkai.wechat.chatgpt.core.SqlSourceConfig;
-import com.guoshengkai.wechat.chatgpt.core.enums.SqlType;
-import com.guoshengkai.wechat.chatgpt.core.plugins.field.FieldTypeFmt;
-import com.guoshengkai.wechat.chatgpt.core.plugins.field.PluginFieldValueType;
-import com.guoshengkai.wechat.chatgpt.core.util.DateUtil;
+import com.guoshengkai.litechatgpt.core.SqlSourceConfig;
+import com.guoshengkai.litechatgpt.core.enums.SqlType;
+import com.guoshengkai.litechatgpt.core.plugins.field.FieldTypeFmt;
+import com.guoshengkai.litechatgpt.core.plugins.field.PluginFieldValueType;
+import com.guoshengkai.litechatgpt.core.util.DateUtil;
 
 import java.util.Date;
 

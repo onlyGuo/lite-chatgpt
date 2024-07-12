@@ -1,9 +1,9 @@
 package com.guoshengkai.litechatgpt.core.dao;
 
-import com.guoshengkai.wechat.chatgpt.core.beans.LeftJoin;
-import com.guoshengkai.wechat.chatgpt.core.beans.PO;
-import com.guoshengkai.wechat.chatgpt.core.beans.ResultPage;
-import com.guoshengkai.wechat.chatgpt.core.beans.WherePrams;
+import com.guoshengkai.litechatgpt.core.beans.LeftJoin;
+import com.guoshengkai.litechatgpt.core.beans.PO;
+import com.guoshengkai.litechatgpt.core.beans.ResultPage;
+import com.guoshengkai.litechatgpt.core.beans.WherePrams;
 
 import java.io.Serializable;
 import java.util.List;

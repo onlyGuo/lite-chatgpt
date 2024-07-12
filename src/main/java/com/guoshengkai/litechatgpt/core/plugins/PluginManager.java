@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.plugins;
 
-import com.guoshengkai.wechat.chatgpt.core.plugins.field.FieldTypeFmt;
-import com.guoshengkai.wechat.chatgpt.core.plugins.field.PluginFieldValueType;
+import com.guoshengkai.litechatgpt.core.plugins.field.FieldTypeFmt;
+import com.guoshengkai.litechatgpt.core.plugins.field.PluginFieldValueType;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

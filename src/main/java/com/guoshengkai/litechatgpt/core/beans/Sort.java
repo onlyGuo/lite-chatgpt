@@ -1,8 +1,8 @@
 package com.guoshengkai.litechatgpt.core.beans;
 
-import com.guoshengkai.wechat.chatgpt.core.enums.OrderBy;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.LambdaUtil;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.SFunction;
+import com.guoshengkai.litechatgpt.core.enums.OrderBy;
+import com.guoshengkai.litechatgpt.core.util.lambda.LambdaUtil;
+import com.guoshengkai.litechatgpt.core.util.lambda.SFunction;
 
 import java.util.ArrayList;
 import java.util.List;

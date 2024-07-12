@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.beans;
 
 
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.vali.Validation;
+import com.guoshengkai.litechatgpt.core.annotation.po.vali.Validation;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;

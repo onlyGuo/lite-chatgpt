@@ -1,7 +1,8 @@
 package com.guoshengkai.litechatgpt.core.annotation.po;
 
 
-import com.guoshengkai.wechat.chatgpt.core.enums.BigFieldType;
+
+import com.guoshengkai.litechatgpt.core.enums.BigFieldType;
 
 import java.lang.annotation.*;
 

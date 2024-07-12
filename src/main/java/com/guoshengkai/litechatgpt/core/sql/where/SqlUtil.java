@@ -1,10 +1,10 @@
 package com.guoshengkai.litechatgpt.core.sql.where;
 
-import com.guoshengkai.wechat.chatgpt.JSON;
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.*;
-import com.guoshengkai.wechat.chatgpt.core.beans.PO;
-import com.guoshengkai.wechat.chatgpt.core.beans.Pram;
-import com.guoshengkai.wechat.chatgpt.exception.ServiceInvokeException;
+import com.alibaba.fastjson.JSON;
+import com.guoshengkai.litechatgpt.core.annotation.po.*;
+import com.guoshengkai.litechatgpt.core.beans.PO;
+import com.guoshengkai.litechatgpt.core.beans.Pram;
+import com.guoshengkai.litechatgpt.exception.ServiceInvokeException;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -356,7 +356,7 @@ public class SqlUtil<T extends PO> {
 				if (null != annotation){
 					field.setAccessible(true);
 					try {
-						field.set(po, JSON.parse(fileValue.toString(), field.getType()));
+						field.set(po, JSON.parseObject(fileValue.toString(), field.getType()));
 						return true;
 					} catch (IllegalAccessException e) {
 						throw new ServiceInvokeException("字段赋值失败:" + e.getMessage(), e);

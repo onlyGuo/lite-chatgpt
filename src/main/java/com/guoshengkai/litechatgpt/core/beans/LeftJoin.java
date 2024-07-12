@@ -1,6 +1,6 @@
 package com.guoshengkai.litechatgpt.core.beans;
 
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.SFunction;
+import com.guoshengkai.litechatgpt.core.util.lambda.SFunction;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.beans;
 
-import com.guoshengkai.wechat.chatgpt.core.sql.where.C;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.SFunction;
+import com.guoshengkai.litechatgpt.core.sql.where.C;
+import com.guoshengkai.litechatgpt.core.util.lambda.SFunction;
 
 /**
  * SQL条件方法

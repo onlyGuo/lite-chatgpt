@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.util.lambda;
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.FieldName;
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.TableName;
-import com.guoshengkai.wechat.chatgpt.core.sql.where.SqlUtil;
+import com.guoshengkai.litechatgpt.core.annotation.po.FieldName;
+import com.guoshengkai.litechatgpt.core.annotation.po.TableName;
+import com.guoshengkai.litechatgpt.core.sql.where.SqlUtil;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;

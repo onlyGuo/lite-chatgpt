@@ -1,6 +1,6 @@
 package com.guoshengkai.litechatgpt.core.util.http;
 
-import com.guoshengkai.wechat.chatgpt.JSON;
+import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -31,7 +31,7 @@ public class HTTP {
      *      响应信息
      */
     public static Object get(String url, Object data){
-        return JSON.parse(requestCommon(url, data, "GET"));
+        return JSON.parseObject(requestCommon(url, data, "GET"));
     }
 
     /**
@@ -44,7 +44,7 @@ public class HTTP {
      *      响应信息
      */
     public static Object post(String url, Object data){
-        return JSON.parse(requestCommon(url, data, "POST"));
+        return JSON.parseObject(requestCommon(url, data, "POST"));
     }
 
     /**
@@ -57,7 +57,7 @@ public class HTTP {
      *      响应信息
      */
     public static Object delete(String url, Object data){
-        return JSON.parse(requestCommon(url, data, "DELETE"));
+        return JSON.parseObject(requestCommon(url, data, "DELETE"));
     }
 
     /**
@@ -70,7 +70,7 @@ public class HTTP {
      *      响应信息
      */
     public static Object put(String url, Object data){
-        return JSON.parse(requestCommon(url, data, "PUT"));
+        return JSON.parseObject(requestCommon(url, data, "PUT"));
     }
 
 
@@ -80,12 +80,12 @@ public class HTTP {
         Map header = new HashMap();
         String dataStr = null;
         if(null != data){
-            Map parse = JSON.parse(JSON.stringify(data), Map.class);
+            Map parse = JSON.parseObject(JSON.toJSONString(data), Map.class);
             if(parse.get("header") != null){
-                header = JSON.parse(JSON.stringify(parse.get("header")), Map.class);
+                header = JSON.parseObject(JSON.toJSONString(parse.get("header")), Map.class);
             }
             if (parse.get("data") != null){
-                dataStr = JSON.stringify(parse.get("data"));
+                dataStr = JSON.toJSONString(parse.get("data"));
                 log.info("HTTP Request Data: {}", dataStr);
             }
         }

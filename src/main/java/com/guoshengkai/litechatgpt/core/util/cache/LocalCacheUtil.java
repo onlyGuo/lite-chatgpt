@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.util.cache;
 
-import com.guoshengkai.wechat.chatgpt.exception.ServiceInvokeException;
-import com.guoshengkai.wechat.chatgpt.exception.ValidationException;
+import com.guoshengkai.litechatgpt.exception.ServiceInvokeException;
+import com.guoshengkai.litechatgpt.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

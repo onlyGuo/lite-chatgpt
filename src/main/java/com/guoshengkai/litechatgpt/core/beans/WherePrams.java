@@ -1,9 +1,9 @@
 package com.guoshengkai.litechatgpt.core.beans;
 
-import com.guoshengkai.wechat.chatgpt.JSON;
-import com.guoshengkai.wechat.chatgpt.core.sql.where.C;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.LambdaUtil;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.SFunction;
+import com.alibaba.fastjson.JSON;
+import com.guoshengkai.litechatgpt.core.sql.where.C;
+import com.guoshengkai.litechatgpt.core.util.lambda.LambdaUtil;
+import com.guoshengkai.litechatgpt.core.util.lambda.SFunction;
 
 import java.util.HashMap;
 import java.util.List;
@@ -91,11 +91,11 @@ public class WherePrams {
 			List<Object> list = null;
 			StringBuffer values = new StringBuffer("(");
 			if (value.getClass().isArray()){
-				list = JSON.parseList(JSON.stringify(value), Object.class);
+				list = JSON.parseArray(JSON.toJSONString(value), Object.class);
 			}else if (value instanceof List){
 				list = (List) value;
 			}else if (value instanceof Set){
-				list = JSON.parseList(JSON.stringify(value), Object.class);
+				list = JSON.parseArray(JSON.toJSONString(value), Object.class);
 			}
 			if (null != list){
 				for (int i = 0; i < list.size(); i++){

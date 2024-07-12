@@ -1,6 +1,6 @@
 package com.guoshengkai.litechatgpt.core.cache;
 
-import com.guoshengkai.wechat.chatgpt.exception.ServiceInvokeException;
+import com.guoshengkai.litechatgpt.exception.ServiceInvokeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

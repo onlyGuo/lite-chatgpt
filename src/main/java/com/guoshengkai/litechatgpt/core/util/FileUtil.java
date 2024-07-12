@@ -2,19 +2,19 @@ package com.guoshengkai.litechatgpt.core.util;
 
 import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFSDTCell;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
+//import net.sourceforge.tess4j.Tesseract;
+//import net.sourceforge.tess4j.TesseractException;
+//import org.apache.pdfbox.Loader;
+//import org.apache.pdfbox.pdmodel.PDDocument;
+//import org.apache.pdfbox.rendering.PDFRenderer;
+//import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+//import org.apache.poi.hwpf.HWPFDocument;
+//import org.apache.poi.ss.usermodel.CellType;
+//import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+//import org.apache.poi.xwpf.usermodel.XWPFDocument;
+//import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+//import org.apache.poi.xwpf.usermodel.XWPFSDTCell;
+//import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -201,119 +201,119 @@ public class FileUtil {
         return image;
     }
 
-    public static String readWordText(byte[] bytes) {
-        try (InputStream in = new ByteArrayInputStream(bytes)){
-            XWPFDocument document = new XWPFDocument(in);
-            StringBuilder builder = new StringBuilder();
-            document.getBodyElements().forEach(bodyElement -> {
-                if (bodyElement instanceof XWPFParagraph){
-                    builder.append(((XWPFParagraph) bodyElement).getText()).append("\n");
-                }
-                if (bodyElement instanceof XWPFTable){
-                    ((XWPFTable) bodyElement).getRows().forEach(row -> {
-                        row.getTableCells().forEach(cell -> {
-                            cell.getParagraphs().forEach(p -> builder.append(p.getText()).append("\t"));
-                        });
-                        builder.append("\n");
-                    });
-                }
-                if (bodyElement instanceof XWPFSDTCell){
-                    builder.append(((XWPFSDTCell) bodyElement).getContent().getText()).append("\n");
-                }
-            });
-            return builder.toString();
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String readWordTextOld(byte[] bytes) {
-        // doc而不是docx
-        try (InputStream in = new ByteArrayInputStream(bytes)){
-            HWPFDocument document = new HWPFDocument(in);
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < document.getRange().numParagraphs(); i++){
-                builder.append(document.getRange().getParagraph(i).text()).append("\n");
-            }
-            return builder.toString();
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String readExcelText(byte[] bytes) {
-        try (InputStream in = new ByteArrayInputStream(bytes)){
-            XSSFWorkbook sheets = new XSSFWorkbook(in);
-            List<Map<String, Object>> result = new LinkedList<>();
-            sheets.forEach(sheet -> {
-                Map<String, Object> sheetMap = new HashMap<>();
-                LinkedList<Object> rows = new LinkedList<>();
-                sheetMap.put("sheetName", sheet.getSheetName());
-                sheetMap.put("rows", rows);
-                result.add(sheetMap);
-                sheet.forEach(row -> {
-                    List<String> cells = new LinkedList<>();
-                    row.forEach(cell -> {
-                        CellType cellType = cell.getCellType();
-                        if (cellType == CellType.NUMERIC){
-                            cells.add(String.valueOf(cell.getNumericCellValue()));
-                        }else if (cellType == CellType.STRING){
-                            cells.add(cell.getStringCellValue());
-                        }else if (cellType == CellType.BOOLEAN) {
-                            cells.add(String.valueOf(cell.getBooleanCellValue()));
-                        }else if (cellType == CellType.FORMULA){
-                            cells.add(cell.getCellFormula());
-                        }else if (cellType == CellType.BLANK){
-                            cells.add("");
-                        }else{
-                            cells.add("");
-                        }
-                    });
-                    rows.add(cells);
-                });
-            });
-            return JSON.toJSONString(result);
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String readExcelTextOld(byte[] bytes) {
-        try (InputStream in = new ByteArrayInputStream(bytes)){
-            HSSFWorkbook sheets = new HSSFWorkbook(in);
-            List<Map<String, Object>> result = new LinkedList<>();
-            sheets.forEach(sheet -> {
-                Map<String, Object> sheetMap = new HashMap<>();
-                LinkedList<Object> rows = new LinkedList<>();
-                sheetMap.put("sheetName", sheet.getSheetName());
-                sheetMap.put("rows", rows);
-                result.add(sheetMap);
-                sheet.forEach(row -> {
-                    List<String> cells = new LinkedList<>();
-                    row.forEach(cell -> {
-                        CellType cellType = cell.getCellType();
-                        if (cellType == CellType.NUMERIC){
-                            cells.add(String.valueOf(cell.getNumericCellValue()));
-                        }else if (cellType == CellType.STRING){
-                            cells.add(cell.getStringCellValue());
-                        }else if (cellType == CellType.BOOLEAN) {
-                            cells.add(String.valueOf(cell.getBooleanCellValue()));
-                        }else if (cellType == CellType.FORMULA){
-                            cells.add(cell.getCellFormula());
-                        }else if (cellType == CellType.BLANK){
-                            cells.add("");
-                        }else{
-                            cells.add("");
-                        }
-                    });
-                    rows.add(cells);
-                });
-            });
-            return JSON.toJSONString(result);
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-    }
+//    public static String readWordText(byte[] bytes) {
+//        try (InputStream in = new ByteArrayInputStream(bytes)){
+//            XWPFDocument document = new XWPFDocument(in);
+//            StringBuilder builder = new StringBuilder();
+//            document.getBodyElements().forEach(bodyElement -> {
+//                if (bodyElement instanceof XWPFParagraph){
+//                    builder.append(((XWPFParagraph) bodyElement).getText()).append("\n");
+//                }
+//                if (bodyElement instanceof XWPFTable){
+//                    ((XWPFTable) bodyElement).getRows().forEach(row -> {
+//                        row.getTableCells().forEach(cell -> {
+//                            cell.getParagraphs().forEach(p -> builder.append(p.getText()).append("\t"));
+//                        });
+//                        builder.append("\n");
+//                    });
+//                }
+//                if (bodyElement instanceof XWPFSDTCell){
+//                    builder.append(((XWPFSDTCell) bodyElement).getContent().getText()).append("\n");
+//                }
+//            });
+//            return builder.toString();
+//        }catch (IOException e){
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public static String readWordTextOld(byte[] bytes) {
+//        // doc而不是docx
+//        try (InputStream in = new ByteArrayInputStream(bytes)){
+//            HWPFDocument document = new HWPFDocument(in);
+//            StringBuilder builder = new StringBuilder();
+//            for (int i = 0; i < document.getRange().numParagraphs(); i++){
+//                builder.append(document.getRange().getParagraph(i).text()).append("\n");
+//            }
+//            return builder.toString();
+//        }catch (IOException e){
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public static String readExcelText(byte[] bytes) {
+//        try (InputStream in = new ByteArrayInputStream(bytes)){
+//            XSSFWorkbook sheets = new XSSFWorkbook(in);
+//            List<Map<String, Object>> result = new LinkedList<>();
+//            sheets.forEach(sheet -> {
+//                Map<String, Object> sheetMap = new HashMap<>();
+//                LinkedList<Object> rows = new LinkedList<>();
+//                sheetMap.put("sheetName", sheet.getSheetName());
+//                sheetMap.put("rows", rows);
+//                result.add(sheetMap);
+//                sheet.forEach(row -> {
+//                    List<String> cells = new LinkedList<>();
+//                    row.forEach(cell -> {
+//                        CellType cellType = cell.getCellType();
+//                        if (cellType == CellType.NUMERIC){
+//                            cells.add(String.valueOf(cell.getNumericCellValue()));
+//                        }else if (cellType == CellType.STRING){
+//                            cells.add(cell.getStringCellValue());
+//                        }else if (cellType == CellType.BOOLEAN) {
+//                            cells.add(String.valueOf(cell.getBooleanCellValue()));
+//                        }else if (cellType == CellType.FORMULA){
+//                            cells.add(cell.getCellFormula());
+//                        }else if (cellType == CellType.BLANK){
+//                            cells.add("");
+//                        }else{
+//                            cells.add("");
+//                        }
+//                    });
+//                    rows.add(cells);
+//                });
+//            });
+//            return JSON.toJSONString(result);
+//        }catch (IOException e){
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public static String readExcelTextOld(byte[] bytes) {
+//        try (InputStream in = new ByteArrayInputStream(bytes)){
+//            HSSFWorkbook sheets = new HSSFWorkbook(in);
+//            List<Map<String, Object>> result = new LinkedList<>();
+//            sheets.forEach(sheet -> {
+//                Map<String, Object> sheetMap = new HashMap<>();
+//                LinkedList<Object> rows = new LinkedList<>();
+//                sheetMap.put("sheetName", sheet.getSheetName());
+//                sheetMap.put("rows", rows);
+//                result.add(sheetMap);
+//                sheet.forEach(row -> {
+//                    List<String> cells = new LinkedList<>();
+//                    row.forEach(cell -> {
+//                        CellType cellType = cell.getCellType();
+//                        if (cellType == CellType.NUMERIC){
+//                            cells.add(String.valueOf(cell.getNumericCellValue()));
+//                        }else if (cellType == CellType.STRING){
+//                            cells.add(cell.getStringCellValue());
+//                        }else if (cellType == CellType.BOOLEAN) {
+//                            cells.add(String.valueOf(cell.getBooleanCellValue()));
+//                        }else if (cellType == CellType.FORMULA){
+//                            cells.add(cell.getCellFormula());
+//                        }else if (cellType == CellType.BLANK){
+//                            cells.add("");
+//                        }else{
+//                            cells.add("");
+//                        }
+//                    });
+//                    rows.add(cells);
+//                });
+//            });
+//            return JSON.toJSONString(result);
+//        }catch (IOException e){
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 
     public interface FileReaderHandler{
@@ -472,48 +472,48 @@ public class FileUtil {
         file.delete();
     }
 
-    public static String readPDF(File file){
-        File tessdata = new File("tessdata");
-        if (!tessdata.exists()){
-            writeFolder("tessdata", tessdata);
-        }
-        StringBuilder builder = new StringBuilder();
-        Tesseract tesseract = new Tesseract();
-        tesseract.setDatapath(tessdata.getAbsolutePath());
-        tesseract.setLanguage("chi_sim+eng");
-        pdf2Image(file).forEach(image -> {
-            try {
-                String s = tesseract.doOCR(image);
-                builder.append(s);
-            } catch (TesseractException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return builder.toString();
-    }
-
-    public static List<BufferedImage> pdf2Image(File file){
-        return pdf2Image(readFile2Byte(file));
-    }
-
-    public static List<BufferedImage> pdf2Image(byte[] bytes){
-        List<BufferedImage> images = new LinkedList<>();
-        try (PDDocument document = Loader.loadPDF(bytes)){
-            PDFRenderer renderer = new PDFRenderer(document);
-            int pages = document.getNumberOfPages();
-            for (int i = 0; i < pages; i++){
-                BufferedImage bufferedImage = renderer.renderImage(i);
-                images.add(bufferedImage);
-            }
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-        return images;
-    }
+//    public static String readPDF(File file){
+//        File tessdata = new File("tessdata");
+//        if (!tessdata.exists()){
+//            writeFolder("tessdata", tessdata);
+//        }
+//        StringBuilder builder = new StringBuilder();
+//        Tesseract tesseract = new Tesseract();
+//        tesseract.setDatapath(tessdata.getAbsolutePath());
+//        tesseract.setLanguage("chi_sim+eng");
+//        pdf2Image(file).forEach(image -> {
+//            try {
+//                String s = tesseract.doOCR(image);
+//                builder.append(s);
+//            } catch (TesseractException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//        return builder.toString();
+//    }
+//
+//    public static List<BufferedImage> pdf2Image(File file){
+//        return pdf2Image(readFile2Byte(file));
+//    }
+//
+//    public static List<BufferedImage> pdf2Image(byte[] bytes){
+//        List<BufferedImage> images = new LinkedList<>();
+//        try (PDDocument document = Loader.loadPDF(bytes)){
+//            PDFRenderer renderer = new PDFRenderer(document);
+//            int pages = document.getNumberOfPages();
+//            for (int i = 0; i < pages; i++){
+//                BufferedImage bufferedImage = renderer.renderImage(i);
+//                images.add(bufferedImage);
+//            }
+//        }catch (IOException e){
+//            throw new RuntimeException(e);
+//        }
+//        return images;
+//    }
 
 
     public static void main(String[] args) {
-        String s = readPDF(new File("C:\\Users\\71934\\Desktop\\370908.pdf"));
-        System.out.println(s);
+//        String s = readPDF(new File("C:\\Users\\71934\\Desktop\\370908.pdf"));
+//        System.out.println(s);
     }
 }

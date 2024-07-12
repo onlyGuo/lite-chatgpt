@@ -1,8 +1,8 @@
 package com.guoshengkai.litechatgpt.core.util.hibernate.util;
 
 
-import com.guoshengkai.wechat.chatgpt.core.util.hibernate.LockMode;
-import com.guoshengkai.wechat.chatgpt.core.util.hibernate.type.Type;
+import com.guoshengkai.litechatgpt.core.util.hibernate.LockMode;
+import com.guoshengkai.litechatgpt.core.util.hibernate.type.Type;
 
 import java.lang.reflect.Array;
 import java.util.*;

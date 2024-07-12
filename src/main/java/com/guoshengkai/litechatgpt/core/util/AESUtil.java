@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.util;
 
 
-import com.guoshengkai.wechat.chatgpt.JSON;
+import com.alibaba.fastjson.JSON;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -68,7 +68,7 @@ public class AESUtil {
      *      加密后的字节
      */
     public static byte[] encryptObject(Object obj, String key) {
-        return encrypt(JSON.stringify(obj).getBytes(StandardCharsets.UTF_8), key);
+        return encrypt(JSON.toJSONString(obj).getBytes(StandardCharsets.UTF_8), key);
     }
 
     /**
@@ -94,7 +94,7 @@ public class AESUtil {
      *      解密后的对象
      */
     public static <T> T decryptModel(byte[] content, String key, Class<T> clazz) {
-        return JSON.parse(new String(decrypt(content, key), StandardCharsets.UTF_8), clazz);
+        return JSON.parseObject(new String(decrypt(content, key), StandardCharsets.UTF_8), clazz);
     }
 
     /**

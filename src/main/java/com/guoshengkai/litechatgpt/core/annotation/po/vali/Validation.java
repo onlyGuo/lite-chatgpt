@@ -1,6 +1,6 @@
 package com.guoshengkai.litechatgpt.core.annotation.po.vali;
 
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.vali.enums.ValidationType;
+import com.guoshengkai.litechatgpt.core.annotation.po.vali.enums.ValidationType;
 
 import java.lang.annotation.*;
 

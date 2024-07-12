@@ -1,6 +1,6 @@
 package com.guoshengkai.litechatgpt.core;
 
-import com.guoshengkai.wechat.chatgpt.core.enums.SqlType;
+import com.guoshengkai.litechatgpt.core.enums.SqlType;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

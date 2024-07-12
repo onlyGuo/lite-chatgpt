@@ -1,12 +1,12 @@
 package com.guoshengkai.litechatgpt.core.beans;
 
 
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.vali.Validation;
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.vali.enums.ValidationType;
-import com.guoshengkai.wechat.chatgpt.core.sql.where.SqlUtil;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.LambdaUtil;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.SFunction;
-import com.guoshengkai.wechat.chatgpt.exception.ValidationException;
+import com.guoshengkai.litechatgpt.core.annotation.po.vali.Validation;
+import com.guoshengkai.litechatgpt.core.annotation.po.vali.enums.ValidationType;
+import com.guoshengkai.litechatgpt.core.sql.where.SqlUtil;
+import com.guoshengkai.litechatgpt.core.util.lambda.LambdaUtil;
+import com.guoshengkai.litechatgpt.core.util.lambda.SFunction;
+import com.guoshengkai.litechatgpt.exception.ValidationException;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;

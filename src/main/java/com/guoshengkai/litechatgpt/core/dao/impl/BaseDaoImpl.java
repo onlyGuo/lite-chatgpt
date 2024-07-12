@@ -1,16 +1,16 @@
 package com.guoshengkai.litechatgpt.core.dao.impl;
 
-import com.guoshengkai.wechat.chatgpt.JSON;
-import com.guoshengkai.wechat.chatgpt.core.annotation.po.JsonField;
-import com.guoshengkai.wechat.chatgpt.core.beans.*;
-import com.guoshengkai.wechat.chatgpt.core.dao.BaseDao;
-import com.guoshengkai.wechat.chatgpt.core.sql.where.C;
-import com.guoshengkai.wechat.chatgpt.core.sql.where.SqlUtil;
-import com.guoshengkai.wechat.chatgpt.core.util.GenericsUtils;
-import com.guoshengkai.wechat.chatgpt.core.util.hibernate.jdbc.util.FormatStyle;
-import com.guoshengkai.wechat.chatgpt.core.util.lambda.LambdaUtil;
-import com.guoshengkai.wechat.chatgpt.exception.ServiceInvokeException;
-import com.guoshengkai.wechat.chatgpt.util.DBUtil;
+import com.alibaba.fastjson.JSON;
+import com.guoshengkai.litechatgpt.core.annotation.po.JsonField;
+import com.guoshengkai.litechatgpt.core.beans.*;
+import com.guoshengkai.litechatgpt.core.dao.BaseDao;
+import com.guoshengkai.litechatgpt.core.sql.where.C;
+import com.guoshengkai.litechatgpt.core.sql.where.SqlUtil;
+import com.guoshengkai.litechatgpt.core.util.DBUtil;
+import com.guoshengkai.litechatgpt.core.util.GenericsUtils;
+import com.guoshengkai.litechatgpt.core.util.hibernate.jdbc.util.FormatStyle;
+import com.guoshengkai.litechatgpt.core.util.lambda.LambdaUtil;
+import com.guoshengkai.litechatgpt.exception.ServiceInvokeException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -140,7 +140,7 @@ public class BaseDaoImpl<T extends PO, PK extends Serializable> implements BaseD
 			if (pramList.get(i).getField() != null){
 				JsonField annotation = pramList.get(i).getField().getAnnotation(JsonField.class);
 				if (null != annotation){
-					String stringify = JSON.stringify(pramList.get(i).getValue());
+					String stringify = JSON.toJSONString(pramList.get(i).getValue());
 					paramMap.put(String.format("param_%s", i), stringify);
 				}else{
 					paramMap.put(String.format("param_%s", i), pramList.get(i).getValue());
@@ -316,7 +316,7 @@ public class BaseDaoImpl<T extends PO, PK extends Serializable> implements BaseD
 		for (int i = 0; i < prams.size(); i++) {
 			JsonField annotation = prams.get(i).getField().getAnnotation(JsonField.class);
 			if (null != annotation){
-				String stringify = JSON.stringify(prams.get(i).getValue());
+				String stringify = JSON.toJSONString(prams.get(i).getValue());
 				paramMap.put("param_" + i, stringify);
 			}else{
 				paramMap.put("param_" + i, prams.get(i).getValue());

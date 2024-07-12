@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.aop;
 
-import com.guoshengkai.wechat.chatgpt.JSON;
-import com.guoshengkai.wechat.chatgpt.util.ThreadUtil;
+import com.alibaba.fastjson.JSON;
+import com.guoshengkai.litechatgpt.core.util.ThreadUtil;
 import jakarta.annotation.PostConstruct;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -55,7 +55,7 @@ public class Log {
 	/**
 	 * AOP日志 切点
 	 */
-	@Pointcut("@annotation(com.guoshengkai.wechat.chatgpt.core.annotation.po.Log)")
+	@Pointcut("@annotation(com.guoshengkai.litechatgpt.core.annotation.po.Log)")
 	public void logMethod(){}
 
 	/**
@@ -67,7 +67,7 @@ public class Log {
 	public void openTra(JoinPoint joinPoint){
 		MethodInfo info = getMethodInfo(joinPoint);
 		getLogger(info.targetClass).info("requestId:[{}], msg:[{}], args:{}",
-				ThreadUtil.getRequestId(), info.methodName + " 进栈", JSON.stringify(info.arguments));
+				ThreadUtil.getRequestId(), info.methodName + " 进栈", JSON.toJSONString(info.arguments));
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class Log {
 
 		MethodInfo info = getMethodInfo(joinPoint);
 		getLogger(info.targetClass).info("requestId:[{}], msg:[{}], args:{}",
-				ThreadUtil.getRequestId(), info.methodName + " 出栈", JSON.stringify(info.arguments));
+				ThreadUtil.getRequestId(), info.methodName + " 出栈", JSON.toJSONString(info.arguments));
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class Log {
 				Class[] clazzs = method.getParameterTypes();
 				if (clazzs.length == info.arguments.length) {
 
-					methodName = method.getAnnotation(com.guoshengkai.wechat.chatgpt.core.annotation.po.Log.class).action();
+					methodName = method.getAnnotation(com.guoshengkai.litechatgpt.core.annotation.po.Log.class).action();
 
 					if (methodName.equals("null")) {
 						methodName = targetName + "#" + name;

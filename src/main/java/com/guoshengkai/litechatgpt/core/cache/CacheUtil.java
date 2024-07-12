@@ -1,7 +1,7 @@
 package com.guoshengkai.litechatgpt.core.cache;
 
-import com.guoshengkai.wechat.chatgpt.JSON;
-import com.guoshengkai.wechat.chatgpt.exception.ServiceInvokeException;
+import com.alibaba.fastjson.JSON;
+import com.guoshengkai.litechatgpt.exception.ServiceInvokeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisCallback;
@@ -54,7 +54,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)o;
         }
-        return JSON.parse(o.toString(), clazz);
+        return JSON.parseObject(o.toString(), clazz);
     }
 
     /**
@@ -102,11 +102,11 @@ public class CacheUtil {
      */
     @SuppressWarnings("unchecked")
     public static void pushObject(Keys key, Object value, long expireTime){
-        String jsonValue = value instanceof String ? value.toString() : JSON.stringify(value);
+        String jsonValue = value instanceof String ? value.toString() : JSON.toJSONString(value);
         if (0 < expireTime){
             REDIS_TEMPLATE.opsForValue().set(key.toString(), jsonValue, expireTime, TimeUnit.SECONDS);
         }else{
-            REDIS_TEMPLATE.opsForValue().set(key.toString(), JSON.stringify(value));
+            REDIS_TEMPLATE.opsForValue().set(key.toString(), JSON.toJSONString(value));
         }
     }
 
@@ -140,7 +140,7 @@ public class CacheUtil {
      */
     @SuppressWarnings({"ConstantConditions"})
     public static long addForList(Keys keys, Object value){
-        String jsonValue = value instanceof String ? value.toString() : JSON.stringify(value);
+        String jsonValue = value instanceof String ? value.toString() : JSON.toJSONString(value);
         return REDIS_TEMPLATE.opsForList().rightPush(keys.toString(), jsonValue);
     }
 
@@ -155,7 +155,7 @@ public class CacheUtil {
     public static long addForList(Keys keys, Object... value){
         String[] strings = new String[value.length];
         for (int i = 0; i < value.length; i++){
-            strings[i] = value[i] instanceof String ? value[i].toString() : JSON.stringify(value[i]);
+            strings[i] = value[i] instanceof String ? value[i].toString() : JSON.toJSONString(value[i]);
         }
         return REDIS_TEMPLATE.opsForList().rightPushAll(keys.toString(), strings);
     }
@@ -179,7 +179,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)value.toString();
         }
-        return JSON.parse(value.toString(), clazz);
+        return JSON.parseObject(value.toString(), clazz);
     }
 
     /**
@@ -202,7 +202,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)value.toString();
         }
-        return JSON.parse(value.toString(), clazz);
+        return JSON.parseObject(value.toString(), clazz);
     }
 
     /**
@@ -225,7 +225,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)value.toString();
         }
-        return JSON.parse(value.toString(), clazz);
+        return JSON.parseObject(value.toString(), clazz);
     }
 
     /**
@@ -246,7 +246,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)value.toString();
         }
-        return JSON.parse(value.toString(), clazz);
+        return JSON.parseObject(value.toString(), clazz);
     }
 
     /**
@@ -267,7 +267,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)value.toString();
         }
-        return JSON.parse(value.toString(), clazz);
+        return JSON.parseObject(value.toString(), clazz);
     }
 
     /**
@@ -305,7 +305,7 @@ public class CacheUtil {
      * @return
      */
     public static String putForMap(Keys keys, String index, Object value){
-        String jsonValue = value instanceof String ? value.toString() : JSON.stringify(value);
+        String jsonValue = value instanceof String ? value.toString() : JSON.toJSONString(value);
         REDIS_TEMPLATE.opsForHash().put(keys.toString(), index, jsonValue);
         return index;
     }
@@ -329,7 +329,7 @@ public class CacheUtil {
         if (clazz.toString().equals(String.class.toString())){
             return (T)value.toString();
         }
-        return JSON.parse(value.toString(), clazz);
+        return JSON.parseObject(value.toString(), clazz);
     }
 
     public static Map<Object, Object> getAllForMap(Keys keys){
@@ -500,7 +500,7 @@ public class CacheUtil {
         if (null == o){
             return null;
         }
-        return JSON.parseList(o.toString(), clazz);
+        return JSON.parseArray(o.toString(), clazz);
     }
 
     /**
