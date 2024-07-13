@@ -1,4 +1,7 @@
+import {ref} from "vue";
+
 const Util = {
+    alertMessages: ref([]),
     getTimeSimpleString: (time, defaultValue) => {
         if (!defaultValue){
             defaultValue = '';
@@ -47,6 +50,17 @@ const Util = {
     },
     setLocalStorage: (key, value) => {
         localStorage.setItem(key, JSON.stringify(value));
+    },
+    alert: (title, content) => {
+        const id = new Date().getTime();
+        Util.alertMessages.value.push({title, content, id: id});
+        return id;
+    },
+    closeAlert: (id) => {
+        const index = Util.alertMessages.value.findIndex(item => item.id === id);
+        if(index >= 0){
+            Util.alertMessages.value.splice(index, 1);
+        }
     }
 }
 

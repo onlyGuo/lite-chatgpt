@@ -4,6 +4,7 @@ import ScrollBar from "./ScrollBar.vue";
 import Message from "./Message.vue";
 import Util from "../libs/Util.js";
 import SliderBar from "./SliderBar.vue";
+import api from "../libs/api.js";
 
 const props = defineProps({
   chat: {
@@ -106,6 +107,138 @@ watch(props.chat, (newVal, oldVal) => {
   Util.setLocalStorage("default_chat_list", list)
 }, {deep: true})
 
+
+const onInput = (e) => {
+  if(e.isComposing){
+    return;
+  }
+  // 要考虑MacOS下的换行符
+  if(e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const content = e.target.value;
+    if (content.trim() === '') {
+      return;
+    }
+    messages.value.push({
+      role: 'user',
+      content: content,
+      time: new Date().toLocaleString(),
+      attachments: []
+    });
+    e.target.value = '';
+    Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
+
+    fetch('/api/v1/gpt/message' , {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+      body: JSON.stringify({
+        model: props.chat.model,
+        chatId: props.chat.id,
+        messages: messages.value.slice(props.chat.contentRows * -1),
+      })
+    }).then(response => {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      const reply = ref({
+        role: 'assistant',
+        content: '',
+        time: new Date().toLocaleString(),
+        attachments: []
+      })
+      messages.value.push(reply.value);
+      return reader.read().then(function processText({ done, value }) {
+        if (done) {
+          // done 为 true 时，表示流已经结束
+          return;
+        }
+        let allLine = decoder.decode(value);
+        let lines = [allLine]
+        if (allLine.concat('\n')){
+          lines = allLine.split('\n');
+        }
+        for(let i in lines){
+          let line = lines[i].trim();
+          if (line === ''){
+            continue;
+          }
+          if (line.startsWith("{") && line.endsWith("}")){
+            reply.value.content += '\n````\n' + line +"\n````\n";
+            toBottom();
+            return reader.read().then(processText);
+          }
+          if (line === ''){
+            toBottom();
+            return reader.read().then(processText);
+          }
+          if (line === '[DONE]'){
+            toBottom();
+            return reader.read().then(processText);
+          }
+          if (line.startsWith("data:")){
+            line = line.substring(5);
+          }
+          try{
+            const json = JSON.parse(line);
+            reply.value.content += json.toString();
+          }catch (e){
+            return;
+          }
+        }
+        toBottom();
+        return reader.read().then(processText);
+      });
+    }).catch(error => {
+      console.log(error)
+    });
+
+
+    // api.post(, , {
+    //   responseType: 'stream'
+    // }).then(response => {
+    //
+    //   if (response.data && typeof response.data.on === 'function') {
+    //     response.data.on('data', (chunk) => {
+    //       // 将每个数据块转换为字符串并输出到控制台
+    //       console.log(chunk.toString());
+    //     });
+    //
+    //     response.data.on('end', () => {
+    //       console.log('Stream reading finished.');
+    //     });
+    //
+    //     response.data.on('error', (err) => {
+    //       console.error('Error reading stream:', err);
+    //     });
+    //   } else {
+    //     console.error('Response data is not a stream.');
+    //   }
+    //   // Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
+    //
+    // }).catch(err => {
+    //   if (err.response) {
+    //     try {
+    //       if (JSON.parse(err.response.data).code === 401) {
+    //         // 请先验证你是否是人类
+    //         reply.value.content = '这是一个新的浏览器，为了防止你是爬虫，在开始之前请先验证你是否是人类。 验证之后，我们会向你的浏览器写入信息。如果你更换了浏览器，你需要重新验证。并且更换浏览器后，聊天记录会消失。\n[我是人类](/#/user)';
+    //         Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
+    //       }
+    //     }catch (e) {
+    //       console.log(e)
+    //     }
+    //   } else {
+    //     reply.value.content = 'Sorry, the server is busy, please try again later.\n' + err;
+    //     Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
+    //   }
+    // });
+  }
+}
+
+const toBottom = () => {
+}
+
 </script>
 
 <template>
@@ -146,7 +279,7 @@ watch(props.chat, (newVal, oldVal) => {
           </div>
         </div>
         <div class="input-area">
-          <textarea class="input" placeholder="Enter text, press (Enter) to send, press (Shift+Enter) to wrap lines."></textarea>
+          <textarea class="input" placeholder="Enter text, press (Enter) to send, press (Shift+Enter) to wrap lines." @keydown="onInput"></textarea>
         </div>
       </div>
     </div>
