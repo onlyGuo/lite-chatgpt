@@ -140,6 +140,17 @@ const onInput = (e) => {
         messages: messages.value.slice(props.chat.contentRows * -1),
       })
     }).then(response => {
+      if (response.status === 401){
+        const reply = ref({
+          role: 'assistant',
+          content: '这是一个新的浏览器，为了防止你是爬虫，在开始之前请先验证你是否是人类。 验证之后，我们会向你的浏览器写入信息。如果你更换了浏览器，你需要重新验证。并且更换浏览器后，聊天记录会消失。\n[我是人类](/#/user)',
+          time: new Date().toLocaleString(),
+          attachments: []
+        })
+        messages.value.push(reply.value);
+        Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
+        return;
+      }
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       const reply = ref({
@@ -151,7 +162,7 @@ const onInput = (e) => {
       messages.value.push(reply.value);
       return reader.read().then(function processText({ done, value }) {
         if (done) {
-          // done 为 true 时，表示流已经结束
+          Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
           return;
         }
         let allLine = decoder.decode(value);
@@ -188,51 +199,13 @@ const onInput = (e) => {
           }
         }
         toBottom();
+        Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
         return reader.read().then(processText);
       });
+
     }).catch(error => {
       console.log(error)
     });
-
-
-    // api.post(, , {
-    //   responseType: 'stream'
-    // }).then(response => {
-    //
-    //   if (response.data && typeof response.data.on === 'function') {
-    //     response.data.on('data', (chunk) => {
-    //       // 将每个数据块转换为字符串并输出到控制台
-    //       console.log(chunk.toString());
-    //     });
-    //
-    //     response.data.on('end', () => {
-    //       console.log('Stream reading finished.');
-    //     });
-    //
-    //     response.data.on('error', (err) => {
-    //       console.error('Error reading stream:', err);
-    //     });
-    //   } else {
-    //     console.error('Response data is not a stream.');
-    //   }
-    //   // Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
-    //
-    // }).catch(err => {
-    //   if (err.response) {
-    //     try {
-    //       if (JSON.parse(err.response.data).code === 401) {
-    //         // 请先验证你是否是人类
-    //         reply.value.content = '这是一个新的浏览器，为了防止你是爬虫，在开始之前请先验证你是否是人类。 验证之后，我们会向你的浏览器写入信息。如果你更换了浏览器，你需要重新验证。并且更换浏览器后，聊天记录会消失。\n[我是人类](/#/user)';
-    //         Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
-    //       }
-    //     }catch (e) {
-    //       console.log(e)
-    //     }
-    //   } else {
-    //     reply.value.content = 'Sorry, the server is busy, please try again later.\n' + err;
-    //     Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
-    //   }
-    // });
   }
 }
 

@@ -61,7 +61,7 @@ const submit = () => {
     Util.alert('Error', err.message)
   })
 }
-const user = ref(null)
+const user = ref({})
 if (!noValidate.value) {
   api.get('/api/v1/user').then(res => {
     user.value = res.data

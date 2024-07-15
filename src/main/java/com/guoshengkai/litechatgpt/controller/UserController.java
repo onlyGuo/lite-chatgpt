@@ -10,6 +10,7 @@ import com.guoshengkai.litechatgpt.core.util.ThreadUtil;
 import com.guoshengkai.litechatgpt.dao.UserDao;
 import com.guoshengkai.litechatgpt.entity.User;
 import com.guoshengkai.litechatgpt.entity.vo.ValidationCodeSendRequest;
+import com.guoshengkai.litechatgpt.exception.AccessOAuthException;
 import com.guoshengkai.litechatgpt.exception.AccessResourceOAuthException;
 import com.guoshengkai.litechatgpt.services.SmsService;
 import com.guoshengkai.litechatgpt.util.EmailUtil;
@@ -44,7 +45,7 @@ public class UserController {
                     "Thank you for choosing Lite-GPT, your captcha is:" + code +
                     ".<br/>Please use the verification code within 5 minutes.", request.getEmail());
             CacheUtil.pushObject(Keys.keys("verification_code", request.getEmail()), code, 60 * 5);
-        } else if (request.getType().equals("phone")) {
+        } else if (request.getType().equals("mobile")) {
             smsService.sendCodeSms(request.getMobile(), code);
             CacheUtil.pushObject(Keys.keys("verification_code", request.getMobile()), code, 60 * 5);
         } else {
@@ -63,7 +64,7 @@ public class UserController {
             }
             request.setMobile(null);
             user = userDao.get(Method.where(User::getEmail, C.EQ, request.getEmail()));
-        } else if (request.getType().equals("phone")) {
+        } else if (request.getType().equals("mobile")) {
             String code = CacheUtil.getObject(Keys.keys("verification_code", request.getMobile()), String.class);
             if (code == null || !code.equals(request.getCode())) {
                 throw new IllegalArgumentException("Invalid verification code");
@@ -97,9 +98,17 @@ public class UserController {
     }
 
     @GetMapping
+    @NoLogin
     public User userInfo(HttpSession session) {
         session.setAttribute("validation", true);
-        return userDao.get(Method.where(User::getId, C.EQ, ThreadUtil.getUserId()));
+        if (ThreadUtil.getUserId() == null || ThreadUtil.getUserId() == 0){
+            throw new AccessOAuthException("No Access");
+        }
+        User user = userDao.get(Method.where(User::getId, C.EQ, ThreadUtil.getUserId()));
+        if (null == user){
+            throw new AccessOAuthException("No Access");
+        }
+        return user;
     }
 
 }
