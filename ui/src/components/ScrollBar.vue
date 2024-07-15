@@ -62,6 +62,9 @@ export default {
     mouseUpX() {
       document.removeEventListener('mousemove', this.mouseMoveX)
       document.removeEventListener('mouseup', this.mouseUpX)
+    },
+    toBottom() {
+      this.scrollBoxContent.scrollTop = this.scrollBoxContent.scrollHeight
     }
   },
   // 监听内容变化

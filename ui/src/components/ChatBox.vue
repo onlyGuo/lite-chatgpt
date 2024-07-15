@@ -1,5 +1,5 @@
 <script setup>
-import {ref, watch} from "vue";
+import {nextTick, onMounted, ref, watch} from "vue";
 import ScrollBar from "./ScrollBar.vue";
 import Message from "./Message.vue";
 import Util from "../libs/Util.js";
@@ -127,6 +127,7 @@ const onInput = (e) => {
     });
     e.target.value = '';
     Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
+    toBottom();
 
     fetch('/api/v1/gpt/message' , {
       method: 'POST',
@@ -208,10 +209,15 @@ const onInput = (e) => {
     });
   }
 }
-
+const messagesScroll = ref(null);
 const toBottom = () => {
+  nextTick(() => {
+    messagesScroll.value.toBottom();
+  })
 }
-
+onMounted(() => {
+  toBottom();
+})
 </script>
 
 <template>
@@ -233,9 +239,9 @@ const toBottom = () => {
   <div class="main">
     <div class="left-content">
       <div class="message-list">
-        <scroll-bar>
+        <scroll-bar ref="messagesScroll">
           <div class="content">
-            <message :message="message" v-for="(message, i) in messages" :key="i" :gpt-avatar="chat.avatar"/>
+            <message :message="message" v-for="(message, i) in messages" :key="i" :gpt-avatar="chat.avatar" :on-update="toBottom"/>
           </div>
         </scroll-bar>
       </div>

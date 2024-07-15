@@ -14,6 +14,10 @@ const props = defineProps({
   gptAvatar: {
     type: String,
     default: ''
+  },
+  onUpdate: {
+    type: Function,
+    default: () => {}
   }
 })
 </script>
@@ -25,12 +29,12 @@ const props = defineProps({
         <img :src="gptAvatar" alt="avatar" />
       </div>
       <div class="content">
-        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" />
+        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" :on-html-changed="onUpdate"/>
       </div>
     </div>
     <div v-else class="user-message">
       <div class="content">
-        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" />
+        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" :on-html-changed="onUpdate"/>
       </div>
       <div class="avatar">
         <img src="../assets/avatar.svg" alt="avatar" />
