@@ -1,6 +1,7 @@
 package com.guoshengkai.litechatgpt.core.util.http;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -30,8 +31,25 @@ public class HTTP {
      * @return
      *      响应信息
      */
-    public static Object get(String url, Object data){
+    public static JSONObject get(String url, Object data){
         return JSON.parseObject(requestCommon(url, data, "GET"));
+    }
+
+    /**
+     * 发送Get请求
+     * @param url
+     *      请求地址
+     * @return
+     *      响应信息
+     * @param data
+     *      请求信息
+     * @return
+     *      响应信息
+     */
+    public static JSONObject get(String url, HttpHeader header, Object data){
+        JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(data));
+        jsonObject.put("header", header.getHeaders());
+        return get(url, jsonObject);
     }
 
     /**
@@ -43,8 +61,25 @@ public class HTTP {
      * @return
      *      响应信息
      */
-    public static Object post(String url, Object data){
+    public static JSONObject post(String url, Object data){
         return JSON.parseObject(requestCommon(url, data, "POST"));
+    }
+
+    /**
+     * 发送POST请求
+     * @param url
+     *      请求地址
+     * @param header
+     *      请求头
+     * @param data
+     *      请求信息
+     * @return
+     *      响应信息
+     */
+    public static JSONObject post(String url, HttpHeader header, Object data){
+        JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(data));
+        jsonObject.put("header", header.getHeaders());
+        return post(url, jsonObject);
     }
 
     /**
@@ -56,7 +91,7 @@ public class HTTP {
      * @return
      *      响应信息
      */
-    public static Object delete(String url, Object data){
+    public static JSONObject delete(String url, Object data){
         return JSON.parseObject(requestCommon(url, data, "DELETE"));
     }
 
@@ -69,7 +104,7 @@ public class HTTP {
      * @return
      *      响应信息
      */
-    public static Object put(String url, Object data){
+    public static JSONObject put(String url, Object data){
         return JSON.parseObject(requestCommon(url, data, "PUT"));
     }
 

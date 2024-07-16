@@ -324,25 +324,25 @@ onMounted(() => {
             </div>
           </div>
         </div>
-<!--        <div class="block">-->
-<!--          <div class="block-title">Plugins</div>-->
-<!--          <div class="block-content">-->
-<!--            <div class="plugin-list">-->
-<!--              <div class="plugin-item">-->
-<!--                <div class="left-icon">-->
-<!--                  <img src="../assets/vue.svg">-->
-<!--                </div>-->
-<!--                <div class="center-content">-->
-<!--                  <div class="title">DALL·E</div>-->
-<!--                  <div class="desc">Generate images from text descriptions</div>-->
-<!--                </div>-->
-<!--                <div class="right-switch">-->
-<!--                  <input type="checkbox" />-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
+        <div class="block">
+          <div class="block-title">Plugins</div>
+          <div class="block-content">
+            <div class="plugin-list">
+              <div class="plugin-item">
+                <div class="left-icon">
+                  <img src="../assets/draw.svg">
+                </div>
+                <div class="center-content">
+                  <div class="title">DALL·E</div>
+                  <div class="desc">Generate images from text descriptions.</div>
+                </div>
+                <div class="right-switch">
+                  <input type="checkbox" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </scroll-bar>
     </div>
   </div>
