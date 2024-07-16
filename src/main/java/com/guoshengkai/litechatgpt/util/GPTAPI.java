@@ -3,7 +3,10 @@ package com.guoshengkai.litechatgpt.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.guoshengkai.litechatgpt.exception.ServiceInvokeException;
 import com.guoshengkai.litechatgpt.exception.ValidationException;
+import com.guoshengkai.litechatgpt.plugin.PluginRegister;
+import com.guoshengkai.litechatgpt.plugin.sdk.Plugin;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -12,6 +15,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,20 +61,32 @@ public class GPTAPI {
     }
 
     public static void freeStream(List<Map<String, Object>> message, FreeChatMessageListener listener){
-        freeStream(message, listener, 0.5, 0, "gpt-3.5-turbo");
+        freeStream(message, List.of(), listener, 0.5, 0, "gpt-3.5-turbo");
     }
 
     public static void freeStream(List<Map<String, Object>> message, String module, FreeChatMessageListener listener){
-        freeStream(message, listener, 0.5, 0, module);
+        freeStream(message, List.of(), listener, 0.5, 0, module);
     }
-    public static void freeStream(List<Map<String, Object>> message, FreeChatMessageListener listener,
+    public static void freeStream(List<Map<String, Object>> message, List<Plugin> plugins, FreeChatMessageListener listener,
                                   double temperature, double presencePenalty, String module){
-
+        Plugin runPlugin = null;
+        String callFunction = null;
+        String callFunctionId = null;
+        StringBuilder callFunctionArguments = new StringBuilder();
+        String baseUrl = null;
+        String accessToken = null;
         try(CloseableHttpClient client = HttpClients.createDefault()){
             String usModel = module;
             HttpPost post = null;
             try {
                 post = getFreePost(usModel.startsWith("gpt-4-vision") || usModel.startsWith("gpt-4o") ? 60000 : 30000);
+                // https://api.icoding.ink/v1/chat/completions
+                // 去掉v1以及后面的
+                baseUrl = post.getURI().toString().split("v1")[0];
+                accessToken = post.getHeaders("Authorization")[0].getValue();
+                if (accessToken.startsWith("Bearer ")){
+                    accessToken = accessToken.substring(7);
+                }
             }catch (ValidationException e){
                 listener.handler(FreeMessage.as(e.getMessage(), false, 0, 0, 0));
                 listener.handler(FreeMessage.as("", true, 0, 0, 0));
@@ -85,6 +101,15 @@ public class GPTAPI {
                     "presence_penalty", presencePenalty
 //                    "stream_options", Map.of("include_usage", true)
             ));
+
+            if (plugins != null && !plugins.isEmpty()){
+                List<Map<String, Object>> tools = new LinkedList<>();
+                plugins.forEach(plugin -> {
+                    tools.add(plugin.toMap());
+                });
+                body.put("tools", tools);
+            }
+
             if(usModel.startsWith("gpt-4-vision") || usModel.startsWith("gpt-4o")){
                 body.put("max_tokens", 4000);
             }
@@ -94,7 +119,8 @@ public class GPTAPI {
             CloseableHttpResponse execute = client.execute(post);
             if (execute.getStatusLine().getStatusCode() != 200){
                 String string = EntityUtils.toString(execute.getEntity(), StandardCharsets.UTF_8);
-                listener.handler(FreeMessage.as("ChatGPT发生错误:\n```json\n" + string + "\n```\n", false, 0, 0, 0));
+                listener.handler(FreeMessage.as("ChatGPT发生错误:\n```json\n" + string + "\n```\n", false,
+                        0, 0, 0));
                 listener.handler(FreeMessage.as("", true, 0, 0, 0));
                 return;
             }
@@ -106,42 +132,19 @@ public class GPTAPI {
             try{
                 reader = new BufferedReader(new InputStreamReader(inputStream), 1);
                 // 一行一行的读
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("data:")){
-                        line = line.substring(5).trim();
+                String tempLine;
+                while ((tempLine = reader.readLine()) != null) {
+                    String[] lines = new String[]{tempLine};
+                    if (tempLine.trim().contains("\n")){
+                        lines = tempLine.split("\n");
                     }
-                    if (line.trim().replace("[DONE]", "").isBlank()){
-                        continue;
-                    }
-                    if (line.trim().contains("\n")){
-                        String[] split = line.split("\n");
-                        for (String s : split) {
-                            if (s.startsWith("data:")){
-                                s = s.substring(5).trim();
-                            }
-                            if (s.isBlank()){
-                                continue;
-                            }
-                            if (s.replace("[DONE]", "").isBlank()){
-                                continue;
-                            }
-                            builder.append(s);
-                            JSONObject jsonObject = JSON.parseObject(s);
-                            String string = jsonObject
-                                    .getJSONArray("choices")
-                                    .getJSONObject(0)
-                                    .getJSONObject("delta").getString("content");
-                            JSONObject usage = jsonObject.getJSONObject("usage");
-                            if (null != usage){
-                                finalUsage = usage;
-                            }
-                            if (null == string){
-                                continue;
-                            }
-                            listener.handler(FreeMessage.as(string, false, 0, 0, 0));
+                    for (String line: lines){
+                        if (line.startsWith("data:")){
+                            line = line.substring(5).trim();
                         }
-                    }else{
+                        if (line.trim().replace("[DONE]", "").isBlank()){
+                            continue;
+                        }
                         builder.append(line);
                         JSONObject jsonObject = JSON.parseObject(line);
                         JSONObject usage = jsonObject.getJSONObject("usage");
@@ -160,9 +163,70 @@ public class GPTAPI {
                         }
                         String string = delta.getString("content");
                         if (null == string){
-                            continue;
+                            string = "";
                         }
-                        listener.handler(FreeMessage.as(string, false, 0, 0, 0));
+                        if (delta.containsKey("tool_calls") && !delta.getJSONArray("tool_calls").isEmpty()){
+                            JSONObject tool = delta.getJSONArray("tool_calls").getJSONObject(0);
+                            if (tool.containsKey("function")){
+                                JSONObject function = tool.getJSONObject("function");
+                                if (function.containsKey("name")){
+                                    callFunction = function.getString("name");
+                                    callFunctionId = tool.getString("id");
+                                    runPlugin = PluginRegister.getPluginByMethodName(callFunction);
+                                    if (null == runPlugin){
+                                        listener.handler(FreeMessage.as(string, false, 0,
+                                                0, 0));
+                                        continue;
+                                    }
+                                    string += "\n[[gpt-fun-call(" + runPlugin.getPluginName() + ")\nrunning\n";
+
+                                }
+                                callFunctionArguments.append(function.getString("arguments"));
+                            }
+                        }
+                        if (StringUtils.hasText(string)){
+                            listener.handler(FreeMessage.as(string, false, 0,
+                                    0, 0));
+                        }
+                    }
+                }
+                // 调用插件
+                if (callFunction != null){
+                    String pluginResult = "";
+                    if (null == runPlugin){
+                        pluginResult = "ERROR: The Plugin is not register.";
+                    }else{
+                        message.add(Map.of(
+                            "content", "",
+                                "role", "assistant",
+                                "tool_calls", List.of(Map.of(
+                                        "id", callFunctionId,
+                                        "type", "function",
+                                        "function", Map.of(
+                                                "name", runPlugin.getPluginMethodName(),
+                                                "arguments", callFunctionArguments
+                                        )
+                                ))
+                        ));
+                        try {
+                            pluginResult = runPlugin.execute(
+                                    JSON.parseObject(callFunctionArguments.toString(), Map.class), baseUrl, accessToken);
+                        }catch (Exception e){
+                            pluginResult = "ERROR:" + e.getClass().toString() + ":\n" + e.getMessage();
+                        }
+                    }
+                    listener.handler(FreeMessage.as("done]]\n", false, 0,
+                            0, 0));
+                    if (pluginResult.startsWith("ERROR:")){
+                        listener.handler(FreeMessage.as("PluginError: \n```\n" + pluginResult + "\n```\n",
+                                false, 0, 0, 0));
+                    }else{
+                        message.add(Map.of(
+                                "content", pluginResult,
+                                "role", "tool",
+                                "tool_call_id", callFunctionId
+                        ));
+                        freeStream(message, plugins, listener, temperature, presencePenalty, module);
                     }
                 }
             }catch (Exception e){
@@ -192,11 +256,12 @@ public class GPTAPI {
             // 逐字读取
         } catch (Exception e){
             try {
-                listener.handler(FreeMessage.as("\nChatGPT发生错误:" + e.getMessage(), true, 0, 0, 0));
+                listener.handler(FreeMessage.as("\nChatGPT发生错误:" + e.getMessage(), true,
+                        0, 0, 0));
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-            throw new ValidationException("ChatGPT发生错误:" + e.getMessage(), e);
+            throw new ServiceInvokeException("ChatGPT发生错误:" + e.getMessage(), e);
         }
     }
 
@@ -287,4 +352,5 @@ public class GPTAPI {
             throw new RuntimeException(e);
         }
     }
+
 }

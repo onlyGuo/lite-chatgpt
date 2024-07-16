@@ -16,4 +16,5 @@ public class MessageRequest {
 
     private int chatId;
 
+    private List<String> plugins;
 }

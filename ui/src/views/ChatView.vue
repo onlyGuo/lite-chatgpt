@@ -4,6 +4,7 @@ import ChatBox from "../components/ChatBox.vue";
 import {ref} from "vue";
 import axios from "axios";
 import Util from "../libs/Util.js";
+import api from "../libs/api.js";
 
 const defaultList = ref([])
 const emptyList = [
@@ -76,7 +77,34 @@ const emptyList = [
 
 
 const initDefaultList = () => {
-  defaultList.value = emptyList;
+  let defaultChatString = localStorage.getItem('default_chat_list');
+  if(!defaultChatString){
+    defaultList.value = emptyList
+  }else{
+    try {
+      defaultList.value = JSON.parse(defaultChatString)
+    }catch (e) {
+      defaultList.value = emptyList
+    }
+  }
+  localStorage.setItem('default_chat_list', JSON.stringify(defaultList.value))
+  // 遍历defaultList和emptyList，找出已删除的聊天和新增的聊天
+  let deletedList = defaultList.value.filter(item => !emptyList.find(i => i.id === item.id))
+  let addedList = emptyList.filter(item => !defaultList.value.find(i => i.id === item.id))
+  // 如果有已删除的聊天，将其从defaultList中删除
+  if(deletedList.length > 0){
+    let newDefaultList = defaultList.value.filter(item => !deletedList.find(i => i.id === item.id))
+    defaultList.value = newDefaultList
+    localStorage.setItem('default_chat_list', JSON.stringify(defaultList.value))
+    for (let i = 0; i < deletedList.length; i++) {
+      localStorage.removeItem("message_list_" + deletedList[i].id)
+    }
+  }
+  // 如果有新增的聊天，将其添加到defaultList中
+  if(addedList.length > 0){
+    defaultList.value = defaultList.value.concat(addedList)
+    localStorage.setItem('default_chat_list', JSON.stringify(defaultList.value))
+  }
 }
 
 
@@ -84,10 +112,6 @@ const initDefaultList = () => {
 
 initDefaultList()
 const useChat = ref(defaultList.value[0])
-
-
-
-
 
 </script>
 

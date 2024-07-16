@@ -23,6 +23,11 @@ public class DALLEPlugin implements Plugin {
     }
 
     @Override
+    public String getPluginMethodName() {
+        return "generateImage";
+    }
+
+    @Override
     public String getMethodDescription() {
         return "Draw a picture and return the URL and description of the picture. " +
                 "You need to use ![img](url) to display the picture.";
@@ -30,7 +35,7 @@ public class DALLEPlugin implements Plugin {
 
     @Override
     public String getPluginIcon() {
-        return "";
+        return "/icons/plugins/dalle.svg";
     }
 
     private final List<String> sizeEnums = List.of("1024x1024", "1792x1024", "1024x1792");
@@ -42,13 +47,15 @@ public class DALLEPlugin implements Plugin {
                         "prompt",
                         "string",
                         "A text description of the desired image(s). The maximum length is 4000 characters",
-                        null
+                        null,
+                        true
                 ),
                 new GPTPluginMethodParameter(
                         "size",
                         "string",
                         "The size of the image, default value: 1024x1024",
-                        sizeEnums
+                        sizeEnums,
+                        true
                 )
         );
     }

@@ -77,9 +77,7 @@ public class HTTP {
      *      响应信息
      */
     public static JSONObject post(String url, HttpHeader header, Object data){
-        JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(data));
-        jsonObject.put("header", header.getHeaders());
-        return post(url, jsonObject);
+        return post(url, Map.of("header", header.getHeaders(), "data", data));
     }
 
     /**

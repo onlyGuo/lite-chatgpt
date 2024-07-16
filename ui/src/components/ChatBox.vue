@@ -93,6 +93,16 @@ const messages = ref([
   }
 ]);
 
+const plugins = ref([])
+plugins.value = [];
+api.get('api/v1/plugin').then(response => {
+  response.data.forEach(plugin => {
+    plugin.enable = props.chat.plugin.includes(plugin.pluginName);
+    console.log(plugin)
+    plugins.value.push(plugin);
+  })
+});
+
 messages.value = Util.getLocalStorage("message_list_" + props.chat.id, [])
 const openSetting = ref(false);
 
@@ -139,6 +149,7 @@ const onInput = (e) => {
         model: props.chat.model,
         chatId: props.chat.id,
         messages: messages.value.slice(props.chat.contentRows * -1),
+        plugins: plugins.value.filter(plugin => plugin.enable).map(plugin => plugin.pluginName),
       })
     }).then(response => {
       if (response.status === 401){
@@ -218,6 +229,10 @@ const toBottom = () => {
 onMounted(() => {
   toBottom();
 })
+
+watch(plugins, () => {
+  props.chat.plugin = plugins.value.filter(plugin => plugin.enable).map(plugin => plugin.pluginName);
+}, {deep: true});
 </script>
 
 <template>
@@ -241,6 +256,7 @@ onMounted(() => {
       <div class="message-list">
         <scroll-bar ref="messagesScroll">
           <div class="content">
+            <div style="height: 51px"></div>
             <message :message="message" v-for="(message, i) in messages" :key="i" :gpt-avatar="chat.avatar" :on-update="toBottom"/>
           </div>
         </scroll-bar>
@@ -264,6 +280,7 @@ onMounted(() => {
     </div>
     <div class="right-chat-setting" :class="{open: openSetting}">
       <scroll-bar>
+        <div style="height: 51px"></div>
         <div class="setting-title">Chat setting</div>
         <div class="block">
           <div class="block-title">Conversation</div>
@@ -318,7 +335,7 @@ onMounted(() => {
               <div class="title">Content Rows</div>
               <div class="content">
                 <div class="item">
-                  <slider-bar v-model:value="props.chat.contentRows" :min="1" :max="10" :step="1" :disabled="props.chat.inner"/>
+                  <slider-bar v-model:value="props.chat.contentRows" :min="1" :max="10" :step="1" />
                 </div>
               </div>
             </div>
@@ -328,16 +345,16 @@ onMounted(() => {
           <div class="block-title">Plugins</div>
           <div class="block-content">
             <div class="plugin-list">
-              <div class="plugin-item">
+              <div class="plugin-item" v-for="(plugin, i) in plugins" :key="i">
                 <div class="left-icon">
-                  <img src="../assets/draw.svg">
+                  <img :src="plugin.pluginIcon">
                 </div>
                 <div class="center-content">
-                  <div class="title">DALL·E</div>
-                  <div class="desc">Generate images from text descriptions.</div>
+                  <div class="title">{{plugin.pluginName}}</div>
+                  <div class="desc">{{plugin.pluginDescription}}</div>
                 </div>
                 <div class="right-switch">
-                  <input type="checkbox" />
+                  <input type="checkbox" v-model="plugin.enable"/>
                 </div>
               </div>
             </div>
@@ -356,9 +373,14 @@ onMounted(() => {
   height: 100%;
 
   .header{
+    position: fixed;
+    z-index: 10;
     display: flex;
     padding: 7px 10px;
     border-bottom: 1px solid #f0f0f0;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    width: 100%;
     .left{
       .avatar{
         width: 35px;
@@ -572,6 +594,7 @@ onMounted(() => {
                 border: 1px solid #f0f0f0;
                 border-radius: 5px;
                 overflow: hidden;
+                background-color: #f0f0f0;
 
                 img {
                   width: 100%;

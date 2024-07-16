@@ -12,6 +12,8 @@ import com.guoshengkai.litechatgpt.entity.Message;
 import com.guoshengkai.litechatgpt.entity.Model;
 import com.guoshengkai.litechatgpt.entity.vo.MessageRequest;
 import com.guoshengkai.litechatgpt.exception.ValidationException;
+import com.guoshengkai.litechatgpt.plugin.PluginRegister;
+import com.guoshengkai.litechatgpt.plugin.sdk.Plugin;
 import com.guoshengkai.litechatgpt.util.GPTAPI;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -65,7 +67,16 @@ public class GPTRequestController {
             result.append(getErrorStr("Model not found"));
             writeResponseError(writer, result.toString(), response);
         }else{
-            GPTAPI.freeStream(messages, (msg) -> {
+            List<Plugin> plugins = new ArrayList<>();
+            if (null != request.getPlugins()){
+                for (String pluginName : request.getPlugins()) {
+                    Plugin plugin = PluginRegister.getPlugin(pluginName);
+                    if (null != plugin){
+                        plugins.add(plugin);
+                    }
+                }
+            }
+            GPTAPI.freeStream(messages, plugins, (msg) -> {
                 result.append(msg.getContent());
                 writeResponse(writer, "data: " + JSON.toJSONString(msg.getContent()) + "\n\n");
                 if (msg.isOver()){

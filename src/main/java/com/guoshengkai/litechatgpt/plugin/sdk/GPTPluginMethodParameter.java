@@ -3,7 +3,9 @@ package com.guoshengkai.litechatgpt.plugin.sdk;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -25,6 +27,11 @@ public class GPTPluginMethodParameter {
      */
     private List<String> enums;
 
+    /**
+     * 是否必填
+     */
+    private boolean required;
+
     public GPTPluginMethodParameter() {
     }
 
@@ -39,11 +46,11 @@ public class GPTPluginMethodParameter {
      * @param enums
      *      参数枚举值
      */
-    public GPTPluginMethodParameter(String name, String type, String description, List<String> enums) {
+    public GPTPluginMethodParameter(String name, String type, String description, List<String> enums, boolean required) {
         this.name = name;
         this.type = type;
         this.description = description;
         this.enums = enums;
+        this.required = required;
     }
-
 }
