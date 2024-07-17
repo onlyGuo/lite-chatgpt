@@ -233,6 +233,26 @@ onMounted(() => {
 watch(plugins, () => {
   props.chat.plugin = plugins.value.filter(plugin => plugin.enable).map(plugin => plugin.pluginName);
 }, {deep: true});
+const messageInput = ref(null);
+const emojiList = ref([
+    ['😊','😂','🤣','😘','😍','😒','🥰','😘'],
+    ['😋','😁','😎','😉','😆','😅','😮','😥'],
+    ['😉','😎','😢','😜','🥲','😙','😗','😣'],
+    ['😏','🙄','😶‍🌫️','🤐','😯','😪','😫','🥱'],
+    ['😴','😒','🤤','😌','😭','😬','😨','😱'],
+    ['🥵','🤬','🤪','😡','😵','🤢','😈','🤓'],
+    ['🧐','💕','❤️','💖','🙈','🙉','🙊','🐵'],
+    ['✌️','🤞','👍','👌','🙌','💪','👂','🫰'],
+    ['🐶','👇','👆','🫵','🫳','🫴','👏','👊'],
+]);
+const showSelectEmj = ref(false);
+const inputContent = ref('');
+const selectEmj = (emj) => {
+  inputContent.value += emj;
+  showSelectEmj.value = false;
+  // 获得焦点
+  messageInput.value.focus();
+}
 </script>
 
 <template>
@@ -265,7 +285,14 @@ watch(plugins, () => {
         <div class="move-line" @mousedown="moveLineOnMouseEnter"></div>
         <div class="tools-bar">
           <div class="left-tools">
-            <div class="icon-button"><img src="../assets/emoj.svg" alt="emoji" /></div>
+            <div class="icon-button" @click="showSelectEmj = !showSelectEmj"><img src="../assets/emoj.svg" alt="emoji" /></div>
+            <div class="emj-box" v-if="showSelectEmj">
+              <scroll-bar>
+                <div class="emj-line" v-for="rows in emojiList">
+                  <div class="emj-item" v-for="i in rows" @click="selectEmj(i)">{{i}}</div>
+                </div>
+              </scroll-bar>
+            </div>
             <div class="icon-button"><img src="../assets/image.svg" alt="image" /></div>
             <div class="icon-button"><img src="../assets/attachment.svg" alt="file" /></div>
           </div>
@@ -274,7 +301,7 @@ watch(plugins, () => {
           </div>
         </div>
         <div class="input-area">
-          <textarea class="input" placeholder="Enter text, press (Enter) to send, press (Shift+Enter) to wrap lines." @keydown="onInput"></textarea>
+          <textarea class="input" ref="messageInput" placeholder="Enter text, press (Enter) to send, press (Shift+Enter) to wrap lines." @keydown="onInput" v-model="inputContent"></textarea>
         </div>
       </div>
     </div>
@@ -468,6 +495,32 @@ watch(plugins, () => {
                 width: 100%;
                 height: 100%;
               }
+            }
+            .emj-box{
+              position: absolute;
+              margin-top: -160px;
+              width: 250px;
+              height: 150px;
+              background-color: white;
+              border: 1px solid #f0f0f0;
+              border-radius: 5px;
+              overflow: auto;
+              z-index: 10;
+              .emj-line{
+                display: flex;
+                justify-content: space-between;
+
+                .emj-item{
+                  width: 30px;
+                  height: 30px;
+                  font-size: 20px;
+                  cursor: pointer;
+                  &:hover{
+                    background-color: #f0f0f0;
+                  }
+                }
+              }
+
             }
           }
           .right-tools{
