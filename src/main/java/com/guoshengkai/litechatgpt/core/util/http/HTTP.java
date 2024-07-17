@@ -135,6 +135,10 @@ public class HTTP {
         }
     }
 
+    public static String getText(String url, Object data) {
+        return requestCommon(url, data, "GET");
+    }
+
     static class BaseRequest extends HttpEntityEnclosingRequestBase{
         private final String METHOD_NAME;
 
