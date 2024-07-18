@@ -129,13 +129,22 @@ const onInput = (e) => {
     if (content.trim() === '') {
       return;
     }
-    messages.value.push({
+    const sendMsg = {
       role: 'user',
       content: content,
       time: new Date().toLocaleString(),
       attachments: []
-    });
+    };
+    if (selectedImage.value){
+      sendMsg.attachments.push({
+        type: 'image',
+        url: selectedImage.value
+      })
+    }
+    messages.value.push(sendMsg);
     e.target.value = '';
+    inputContent.value = ''
+    selectedImage.value = ''
     Util.setLocalStorage("message_list_" + props.chat.id, messages.value)
     toBottom();
 
@@ -253,6 +262,26 @@ const selectEmj = (emj) => {
   // 获得焦点
   messageInput.value.focus();
 }
+const imgInput = ref();
+const openImageSelect = () => {
+  return imgInput.value.click();
+}
+const selectedImage = ref('')
+const selectImage = () => {
+  const file = imgInput.value.files[0];
+  imgInput.value.value = ''
+  console.log(file);
+  let img = '';
+  api.get('/api/v1/file/upload').then(res => {
+    img = res.data.url.match(/\.com\/(.*)\?/)[1]
+    return api.put(res.data.url, file, {headers: {'Content-Type': 'application/octet-stream'}});
+  }).then(res => {
+    selectedImage.value = img;
+  })
+}
+const cancelImage = () => {
+  selectedImage.value = ''
+}
 </script>
 
 <template>
@@ -293,7 +322,12 @@ const selectEmj = (emj) => {
                 </div>
               </scroll-bar>
             </div>
-            <div class="icon-button"><img src="../assets/image.svg" alt="image" /></div>
+            <div class="icon-button" @click="openImageSelect"><img src="../assets/image.svg" alt="image" /></div>
+            <input type="file" accept="image/png, image/jpeg, image/gif" style="display: none;" ref="imgInput" @change="selectImage"/>
+            <div class="uploaded-image" v-if="selectedImage">
+              <img :src="'/api/v1/file/display/' + selectedImage" />
+              <div class="remove-btn" @click="cancelImage">cancel</div>
+            </div>
             <div class="icon-button"><img src="../assets/attachment.svg" alt="file" /></div>
           </div>
           <div class="right-tools">
@@ -449,6 +483,7 @@ const selectEmj = (emj) => {
   .main{
     display: flex;
     flex: 1;
+    overflow: hidden;
     .left-content{
       flex: 1;
       display: flex;
@@ -520,7 +555,29 @@ const selectEmj = (emj) => {
                   }
                 }
               }
-
+            }
+            .uploaded-image{
+              width: 100px;
+              height: 100px;
+              background-color: white;
+              position: absolute;
+              margin-top: -110px;
+              border-radius: 5px;
+              box-shadow: 1px 1px 8px -3px rgba(0,0,0,.6);
+              overflow: hidden;
+              img{
+                width: 100%;
+                height: 70px;
+                display: block;
+              }
+              .remove-btn{
+                height: 30px;
+                text-align: center;
+                background-color: #8c56fc;
+                color: white;
+                cursor: pointer;
+                line-height: 30px;
+              }
             }
           }
           .right-tools{
@@ -570,12 +627,14 @@ const selectEmj = (emj) => {
       }
     }
     .right-chat-setting{
-      width: 0;
+      width: 300px;
       height: 100%;
-      transition: width 0.3s;
+      transition: margin-right 0.3s;
       border-left: 1px solid #f0f0f0;
+      margin-right: -300px;
       &.open{
-        width: 300px;
+        //width: 300px;
+        margin-right: 0;
       }
 
       .setting-title{

@@ -1,6 +1,8 @@
 <script setup>
 import 'md-editor-v3/lib/style.css';
 import {MdPreview} from "md-editor-v3";
+import {onMounted} from "vue";
+import api from "../libs/api.js";
 const props = defineProps({
   message: {
     type: Object,
@@ -20,6 +22,36 @@ const props = defineProps({
     default: () => {}
   }
 })
+const getFinalContent = () => {
+  let content = props.message.content;
+  if (props.message.attachments){
+    for (let i in props.message.attachments){
+      let item = props.message.attachments[i];
+      if (item.type === 'image'){
+        content = '![img](/api/v1/file/display/' + item.url + ')\n' + content
+        // 缓存
+        // let cacheBase64 = localStorage.getItem('cache_' + item.url);
+        // if(cacheBase64){
+        //   content = '![img](' + cacheBase64 + ')\n' + content
+        // }else{
+        //   content = '![img](/api/v1/file/display/' + item.url + ')\n' + content
+        //   api.get('api/v1/file/display/' + item.url, {
+        //     responseType: 'arraybuffer'
+        //   }).then(response  => {
+        //     let base64String = btoa(
+        //         new Uint8Array(response.data)
+        //             .reduce((data, byte) => data + String.fromCharCode(byte), '')
+        //     );
+        //     base64String = "data:image/jpeg;base64," + base64String
+        //     localStorage.setItem('cache_' + item.url, base64String);
+        //   })
+        // }
+
+      }
+    }
+  }
+  return content;
+}
 </script>
 
 <template>
@@ -29,12 +61,12 @@ const props = defineProps({
         <img :src="gptAvatar" alt="avatar" />
       </div>
       <div class="content">
-        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" :on-html-changed="onUpdate"/>
+        <MdPreview :model-value="getFinalContent()" class="markdown-body" :codeFoldable="false" :on-html-changed="onUpdate"/>
       </div>
     </div>
     <div v-else class="user-message">
       <div class="content">
-        <MdPreview :model-value="message.content" class="markdown-body" :codeFoldable="false" :on-html-changed="onUpdate"/>
+        <MdPreview :model-value="getFinalContent()" class="markdown-body" :codeFoldable="false" :on-html-changed="onUpdate"/>
       </div>
       <div class="avatar">
         <img src="../assets/avatar.svg" alt="avatar" />
@@ -133,6 +165,13 @@ const props = defineProps({
             }
           }
         }
+        /deep/.default-theme figure {
+          display: block;
+          text-align: left;
+          img{
+            max-height: 300px;
+          }
+        }
       }
     }
   }
@@ -141,6 +180,7 @@ const props = defineProps({
     display: flex;
     justify-content: flex-end;
     margin-bottom: 10px;
+
     .content{
       background-color: #a578ff;
       padding: 10px;
@@ -149,8 +189,12 @@ const props = defineProps({
       max-width: 70%;
       word-break: break-all;
       color: #fff;
+      box-shadow: 1px 1px 8px -3px rgba(0,0,0,.6);
       /deep/.md-editor div.default-theme{
         color: white!important;
+        img.medium-zoom-image{
+          max-height: 300px;
+        }
       }
     }
     .avatar{

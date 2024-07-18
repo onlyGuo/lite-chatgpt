@@ -8,36 +8,36 @@ import com.guoshengkai.litechatgpt.plugin.sdk.GPTPluginMethodParameter;
 import com.guoshengkai.litechatgpt.plugin.sdk.Plugin;
 
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-public class BingSearchPlugin implements Plugin {
-
+public class GoogleSearchPlugin implements Plugin {
 
     @Override
     public String getPluginName() {
-        return "Bing Search";
+        return "Google Search";
     }
 
     @Override
     public String getPluginDescription() {
-        return "Use Bing to search for the latest content on the internet.";
+        return "Use Google to search for the latest content on the internet.";
     }
 
     @Override
     public String getPluginMethodName() {
-        return "searchFromBing";
+        return "searchFromGoogle";
     }
 
     @Override
     public String getMethodDescription() {
-        return "Use Bing to search for the latest content on the internet.";
+        return "Use Google to search for the latest content on the internet.";
     }
 
     @Override
     public String getPluginIcon() {
-        return "/icons/plugins/bing.svg";
+        return "/icons/plugins/google.svg";
     }
 
     @Override

@@ -10,10 +10,12 @@ import com.guoshengkai.litechatgpt.dao.MessageDao;
 import com.guoshengkai.litechatgpt.dao.ModelDao;
 import com.guoshengkai.litechatgpt.entity.Message;
 import com.guoshengkai.litechatgpt.entity.Model;
+import com.guoshengkai.litechatgpt.entity.vo.MessageAttachment;
 import com.guoshengkai.litechatgpt.entity.vo.MessageRequest;
 import com.guoshengkai.litechatgpt.exception.ValidationException;
 import com.guoshengkai.litechatgpt.plugin.PluginRegister;
 import com.guoshengkai.litechatgpt.plugin.sdk.Plugin;
+import com.guoshengkai.litechatgpt.services.FilesService;
 import com.guoshengkai.litechatgpt.util.GPTAPI;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,6 +40,9 @@ public class GPTRequestController {
     @Resource
     private MessageDao messageDao;
 
+    @Resource
+    private FilesService filesService;
+
     @PostMapping("message")
     @SneakyThrows
     public void requestMessage(@RequestBody MessageRequest request, HttpServletResponse response) {
@@ -48,6 +53,14 @@ public class GPTRequestController {
         userMessage.setChatId(request.getChatId());
         messageDao.add(userMessage);
 
+        // 持久化
+        if (userMessage.getAttachments() != null && !userMessage.getAttachments().isEmpty()){
+            for (MessageAttachment attachment: userMessage.getAttachments()){
+                filesService.use(attachment.getUrl());
+            }
+        }
+
+
         // stream
         response.setContentType("text/event-stream; charset=utf-8");
         response.setHeader("Cache-Control", "no-cache");
@@ -55,17 +68,36 @@ public class GPTRequestController {
 
         List<Map<String, Object>> messages = new ArrayList<>();
         for (Message message : request.getMessages()) {
-            messages.add(new HashMap<>(Map.of("role", message.getRole(), "content", message.getContent())));
+            if (message.getAttachments() == null || message.getAttachments().isEmpty()){
+                messages.add(new HashMap<>(Map.of("role", message.getRole(), "content", message.getContent())));
+            }else{
+                List<Map<String, Object>> content = new ArrayList<>();
+                for (MessageAttachment attachment: message.getAttachments()){
+                    if (attachment.getType().equals("image")){
+                        if (request.getModel().startsWith("gpt-4") || request.getModel().startsWith("claude-3")){
+                            content.add(new HashMap<>(Map.of(
+                                    "type", "image_url",
+                                    "image_url", Map.of(
+                                            "url", filesService.getSignUrl(attachment.getUrl(), "image/png")
+                                    )
+                            )));
+                        }
+                    }
+                }
+                content.add(new HashMap<>(
+                        Map.of("type", "text", "text", message.getContent())
+                ));
+                messages.add(new HashMap<>(Map.of("role", message.getRole(), "content", content)));
+            }
         }
         Model model = CacheValueUtil.getValue(() ->
                         modelDao.get(Method.where(Model::getName, C.EQ, request.getModel())),
                 Keys.keys("MODEL", request.getModel()), TimeUnit.SECONDS, 60);
         StringBuilder result = new StringBuilder();
 
-
         if (null == model){
             result.append(getErrorStr("Model not found"));
-            writeResponseError(writer, result.toString(), response);
+            writeResponseError(writer, "data: " + JSON.toJSONString(result.toString()), response);
         }else{
             List<Plugin> plugins = new ArrayList<>();
             if (null != request.getPlugins()){
